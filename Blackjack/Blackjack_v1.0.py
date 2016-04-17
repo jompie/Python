@@ -37,7 +37,6 @@ class Game(object):
     def __init__(self):
         player = Player("Player 1", 1000)
         self.deck = Deck()
-        self.deck.shuffle()
 
 class Deck(object):
     
@@ -46,14 +45,10 @@ class Deck(object):
         for suit in suits:
             for face in faces:
                 self.cards.append(Card(suit, face))
-    def shuffle(self):
         random.shuffle(self.cards)
 
     def next_card(self):
         return self.cards.pop()
-
-    def return_cards(self, cards):
-        return self.cards
 
 class Card(object):
     def __init__(self, suit, face):
@@ -86,9 +81,6 @@ class Hand(object):
 
     def draw_from_deck(self, deck):
         self.hand.append(deck.next_card())
-
-    def return_to_deck(self, deck):
-        deck.return_cards(hand)
 
     def get_value(self):
         value = 0
