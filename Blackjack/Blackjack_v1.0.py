@@ -12,16 +12,13 @@ class Player(object):
 
     def __init__(self, name, credit=1000):
         self.name = name
-        self.credit = credit
-      
-    def play():
-        pass
+        self.credit = credit  
 
-    def show_hand():
-        pass
+    def show_hand(self):
+        self.hand.show_hand(hidden=False)
 
-    def hit_or_stand():
-        pass
+    def hand_value(self):
+        return self.hand.get_value()
 
     def set_bet_amount(self, amount):
         self.bet = amount
@@ -29,6 +26,9 @@ class Player(object):
 class Dealer(Player):   
     def __init__(self):
         self.name = "Dealer"
+
+    def show_hand(self):
+        self.hand.show_hand(hidden=True)
 
 class Game(object):
     deck = []
@@ -38,9 +38,6 @@ class Game(object):
         player = Player("Player 1", 1000)
         self.deck = Deck()
         self.deck.shuffle()
-
-    def play():
-        pass
 
 class Deck(object):
     
@@ -137,20 +134,25 @@ def make_bet():
             
 def deal():
     global game, player, playing, result
-
+    
     if (playing):
-        result = "You lost! Dare to play again? "
+        result = "You lost! Dare to play again? D/Q: "
         playing = False
         player_input()
     else:
+        # Let's the player set a bet amount
         make_bet()
-        result = "Hit or stand? h/s: "
+        
+        # Start with a full deck that's shuffled        
+        game.deck = Deck()
+
+        # initialize player and dealer hands
         player.hand = Hand()
         game.dealer.hand = Hand()
 
+        # draw player and dealer hands
         player.hand.draw_from_deck(game.deck)
         game.dealer.hand.draw_from_deck(game.deck)
-    
         player.hand.draw_from_deck(game.deck)
         game.dealer.hand.draw_from_deck(game.deck)
 
@@ -162,11 +164,11 @@ def hit():
     global playing, player, game, result
 
     if playing:
-        if player.hand.get_value() <= 21:
+        if player.hand_value() <= 21:
             player.hand.draw_from_deck(game.deck)
         print("Player: ")
-        player.hand.show_hand(hidden=False)
-        if player.hand.get_value() >= 22:
+        player.show_hand()
+        if player.hand_value() >= 22:
             result = "Busted" + restart_phrase
 
     else:
@@ -177,25 +179,29 @@ def hit():
 
 def stand():
     global playing, player, game, result
-
+    
     if not playing:
-        if player.hand.get_value() > 0:
+        if player.hand_value() > 0:
             result = "Sorry you can't stand"
     else:
-        while game.dealer.hand.get_value() < 17:
+        # If the value of the dealers hand is less than 17, another card will be drawn
+        while game.dealer.hand_value() < 17:
             game.dealer.hand.draw_from_deck(game.deck)
-            
-        if game.dealer.hand.get_value() > 21:
+
+        # Dealer busts if the value of his hand is more than 21   
+        if game.dealer.hand_value() > 21:
             result = "Dealer Busts! You win!" + restart_phrase
             player.credit += player.bet
             playing = False
-            
-        elif game.dealer.hand.get_value() < player.hand.get_value():
+
+        # Dealer hand value is lower than the players hand value
+        elif game.dealer.hand_value() < player.hand_value():
             result = "You beat the dealer! Congratulations, you win." + restart_phrase
             player.credit += player.bet
             playing = False
 
-        elif game.dealer.hand.get_value() == player.hand.get_value():
+        #Dealer hand value is the same as players hand value
+        elif game.dealer.hand_value() == player.hand_value():
             result = "Tied up, push!" + restart_phrase
             playing = False
 
@@ -207,27 +213,27 @@ def stand():
         game_step()
                        
 def game_step():
-    global result
+    global result, playing, player, game
     
     print("Your balance:", player.credit)
     print("Player: ")
-    player.hand.show_hand(hidden=False)
-    print("Hand total: ",player.hand.get_value(),"\n")
+    player.show_hand()
+    print("Hand total: ",player.hand_value(),"\n")
     print("Dealer: ")
-    game.dealer.hand.show_hand(hidden=True)
-
+    game.dealer.show_hand()
+    
     if not playing:
-        print(" --- for a total of " + str(game.dealer.hand.get_value()))
+        print(" --- for a total of " + str(game.dealer.hand_value()))
         print("Your balance: " + str(player.credit))
     else: 
         print(" with another card hidden upside down")
-
+    
     print(result)
     
     player_input()
 
 def exit_game():
-    pass
+    print ("Goodbye.")
 
 def player_input():
     global playing
@@ -249,8 +255,18 @@ def intro():
     statement = """Welcome to blackjack! You know the rules."""
     print(statement)
 
-result = ""        
-game = Game()
-player = Player("John",1000)
+# set default result message
+result = "Hit or stand? h/s: "       
+
 intro()
+
+game = Game()
+name = ""
+credit = 0
+while len(name)==0:
+        name = input("What's your name?: ")
+while credit ==0:
+        credit = int(input("How much money do want to lose?"))
+player = Player(name,credit)
+        
 deal()        

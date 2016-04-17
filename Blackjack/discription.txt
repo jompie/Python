@@ -1,1 +1,14 @@
-A simple text base Blackjack game using Object Oriented programming
+A simple text based Blackjack game using Object Oriented programming.
+
+Features: 
+- 1 player vs Dealer
+- Player has a credit limit
+- Player can choose bet amount
+- Player can Hit or stand
+
+Possible future features:
+- Player can double down
+- Player can split
+- Multiplayer games
+- GUI
+
